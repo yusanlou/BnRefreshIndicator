@@ -1,14 +1,36 @@
 # bn_refresh_indicator
 
-A new Flutter package project.
+A system based refresh & load component.
 
-## Getting Started
+## How To Use It .
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+It's basically the same as the native RefreshIndicator.
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+```dart
+BnRefreshIndicator(
+          onRefresh: () async {
+            await Future.delayed(Duration(seconds: 1));
+            _counter = 10;
+            setState(() {});
+            return;
+          },
+          onLoadMore: () async {
+            await Future.delayed(Duration(seconds: 1));
+            _counter += 10;
+            setState(() {});
+            return;
+          },
+          child: ListView.builder(
+            itemBuilder: (context, index) {
+              return Card(
+                child: Center(
+                  child: Text('index -- $index'),
+                ),
+              );
+            },
+            itemCount: _counter,
+            itemExtent: 88.0,
+          ),
+        ) 
+```
+
