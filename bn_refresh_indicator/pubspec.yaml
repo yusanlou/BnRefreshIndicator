@@ -1,8 +1,8 @@
 name: bn_refresh_indicator
-description: A new Flutter package project.
+description: A system based refresh & load component.
 version: 0.0.1
-author:
-homepage:
+author: mubai <a754748816@gmail.com>
+homepage: https://github.com/BackNotGod/BnRefreshIndicator
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
