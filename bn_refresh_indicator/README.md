@@ -40,7 +40,7 @@ BnRefreshIndicator(
 
 ## Reference
 
-![refresh](<https://github.com/BackNotGod/BnRefreshIndicator/blob/master/bn_refresh_indicator/test/test_bn_refreshindicator/refregif_low.gif>)
+![refresh](<https://github.com/BackNotGod/BnRefreshIndicator/blob/master/bn_refresh_indicator/example/test_bn_refreshindicator/refregif_low.gif>)
 
 
 

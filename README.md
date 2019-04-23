@@ -40,10 +40,10 @@ BnRefreshIndicator(
 
 ## Reference
 
-![refresh](<https://github.com/BackNotGod/BnRefreshIndicator/blob/master/bn_refresh_indicator/test/test_bn_refreshindicator/refregif_low.gif>)
+![refresh](<https://github.com/BackNotGod/BnRefreshIndicator/blob/master/bn_refresh_indicator/example/test_bn_refreshindicator/refregif_low.gif>)
 
 
 
 ## Extension
 
-It's very low intrusive, and if you don't need to load it just keep refresh, just Set `onLoadMore` to null or Or not assign it a value.
+It's very low intrusive, and if you don't need to load it just keep refresh, just Set `onLoadMore` to null or not assign it a value.
