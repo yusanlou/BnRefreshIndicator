@@ -46,4 +46,6 @@ BnRefreshIndicator(
 
 ## Extension
 
-It's very low intrusive, and if you don't need to load it just keep refresh, just Set `onLoadMore` to null or Or not assign it a value.
+It's very low intrusive, and if you don't need to load it just keep refresh, just Set `onLoadMore` to null or not assign it a value.
+
+Welcome to support star if it can help.
