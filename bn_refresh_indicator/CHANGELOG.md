@@ -13,3 +13,7 @@
 ## [1.1.0] 
 
 *  Handles logic for both refresh and load.
+
+## [1.1.1] 
+
+*  Handles logic for both refresh and load.fix readme.
