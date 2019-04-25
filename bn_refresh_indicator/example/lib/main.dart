@@ -63,13 +63,13 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: BnRefreshIndicator(
           onRefresh: () async {
-            await Future.delayed(Duration(seconds: 1));
+            await Future.delayed(Duration(seconds: 3));
             _counter = 10;
             setState(() {});
             return;
           },
           onLoadMore: () async {
-            await Future.delayed(Duration(seconds: 1));
+            await Future.delayed(Duration(seconds: 3));
             _counter += 10;
             setState(() {});
             return;

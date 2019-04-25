@@ -58,6 +58,8 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
   Animation<Color> _valueColor;
 
   double _dragOffset;
+  bool isLoading = false;
+  bool isRefreshing = false;
 
   static final Animatable<double> _threeQuarterTween =
       Tween<double>(begin: 0.0, end: 0.75);
@@ -122,7 +124,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
           _mode = _DragProgressMode.loading;
         });
 
-        final Future<void> refreshResult = widget.onLoadMore();
+        final Future<void> refreshResult = _checkLoadingActions();
         assert(() {
           if (refreshResult == null)
             FlutterError.reportError(FlutterErrorDetails(
@@ -187,7 +189,12 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
       _mode = _DragProgressMode.armed;
   }
 
+  bool _preHandleRefreshScrollNotification(ScrollNotification notification) => !isLoading;
+
   bool _handleScrollNotification(ScrollNotification notification) {
+    if (this.isRefreshing) {
+      return false;
+    }
     // pixels > maxScrollExtent
     if (notification is ScrollStartNotification &&
         notification.metrics.pixels >= notification.metrics.maxScrollExtent &&
@@ -236,6 +243,21 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
     return false;
   }
 
+// begin loading hidden refresh
+  Future _checkLoadingActions() async {
+    isLoading = true;
+    await widget.onLoadMore();
+    // set it to back
+    isLoading = false;
+  }
+
+  Future _checkRefreshActions() async {
+    isRefreshing = true;
+    await widget.onRefresh();
+    // set it to back
+    isRefreshing = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool showIndeterminateIndicator =
@@ -243,45 +265,50 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
 
     final Widget child = NotificationListener(
       child: RefreshIndicator(
-        onRefresh: widget.onRefresh,
-        child: widget.child,
-      ),
+              notificationPredicate: _preHandleRefreshScrollNotification,
+              onRefresh: _checkRefreshActions,
+              child: widget.child,
+            ),
       onNotification: widget.onLoadMore != null ? _handleScrollNotification : null,
     );
-    return widget.onLoadMore == null ? child : Stack(
-      children: <Widget>[
-        child,
-        Positioned(
-          // top: 0.0,
-          bottom: 0.0,
-          left: 0.0,
-          right: 0.0,
-          child: SizeTransition(
-            axisAlignment: -1.0,
-            sizeFactor: _positionFactor, // this is what brings it down
-            child: Container(
-              padding: EdgeInsets.only(bottom: 40.0),
-              alignment: Alignment.bottomCenter,
-              child: ScaleTransition(
-                scale: _scaleFactor,
-                child: AnimatedBuilder(
-                  animation: _positionController,
-                  builder: (BuildContext context, Widget child) {
-                    return RefreshProgressIndicator(
-                      semanticsLabel: MaterialLocalizations.of(context)
-                          .refreshIndicatorSemanticLabel,
-                      semanticsValue: 'widget.semanticsValue',
-                      value: showIndeterminateIndicator ? null : _value.value,
-                      valueColor: _valueColor,
-                      backgroundColor: widget.backgroundColor,
-                    );
-                  },
+    return widget.onLoadMore == null
+        ? child
+        : Stack(
+            children: <Widget>[
+              child,
+              Positioned(
+                // top: 0.0,
+                bottom: 0.0,
+                left: 0.0,
+                right: 0.0,
+                child: SizeTransition(
+                  axisAlignment: -1.0,
+                  sizeFactor: _positionFactor, // this is what brings it down
+                  child: Container(
+                    padding: EdgeInsets.only(bottom: 40.0),
+                    alignment: Alignment.bottomCenter,
+                    child: ScaleTransition(
+                      scale: _scaleFactor,
+                      child: AnimatedBuilder(
+                        animation: _positionController,
+                        builder: (BuildContext context, Widget child) {
+                          return RefreshProgressIndicator(
+                            semanticsLabel: MaterialLocalizations.of(context)
+                                .refreshIndicatorSemanticLabel,
+                            semanticsValue: 'widget.semanticsValue',
+                            value: showIndeterminateIndicator
+                                ? null
+                                : _value.value,
+                            valueColor: _valueColor,
+                            backgroundColor: widget.backgroundColor,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ),
-      ],
-    );
+            ],
+          );
   }
 }
