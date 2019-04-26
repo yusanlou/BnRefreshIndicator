@@ -62,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(widget.title),
         ),
         body: BnRefreshIndicator(
+          nodataWidget: Text('there is no data'),
           onRefresh: () async {
             await Future.delayed(Duration(seconds: 3));
             _counter = 10;
@@ -72,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
             await Future.delayed(Duration(seconds: 3));
             _counter += 10;
             setState(() {});
-            return;
+            return false;
           },
           child: ListView.builder(
             itemBuilder: (context, index) {

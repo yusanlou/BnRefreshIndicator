@@ -17,3 +17,7 @@
 ## [1.1.1] 
 
 *  Handles logic for both refresh and load.fix readme.
+
+## [1.2.0] 
+
+*  Add drop - down to load data in case of no data handling。

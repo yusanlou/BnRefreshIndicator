@@ -14,6 +14,8 @@ enum _DragProgressMode {
   canceled, // Animating the indicator's fade-out after not arming.
 }
 
+typedef LoadMoreCallback = Future<dynamic> Function();
+
 // The over-scroll distance that moves the indicator to its maximum
 // displacement, as a percentage of the scrollable's container extent.
 const double _kDragContainerExtentPercentage = 0.25;
@@ -34,13 +36,15 @@ class BnRefreshIndicator extends StatefulWidget {
   final RefreshCallback onRefresh;
   final Widget child;
   final Color backgroundColor;
-  final RefreshCallback onLoadMore;
+  final LoadMoreCallback onLoadMore;
+  final Widget nodataWidget;
 
   BnRefreshIndicator(
       {@required this.child,
       @required this.onRefresh,
       this.onLoadMore,
-      this.backgroundColor});
+      this.backgroundColor,
+      this.nodataWidget});
 
   @override
   _BnRefreshIndicatorState createState() => _BnRefreshIndicatorState();
@@ -60,6 +64,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
   double _dragOffset;
   bool isLoading = false;
   bool isRefreshing = false;
+  bool hasMoreData = true;
 
   static final Animatable<double> _threeQuarterTween =
       Tween<double>(begin: 0.0, end: 0.75);
@@ -124,7 +129,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
           _mode = _DragProgressMode.loading;
         });
 
-        final Future<void> refreshResult = _checkLoadingActions();
+        final Future<dynamic> refreshResult = _checkLoadingActions();
         assert(() {
           if (refreshResult == null)
             FlutterError.reportError(FlutterErrorDetails(
@@ -136,10 +141,10 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
           return true;
         }());
         if (refreshResult == null) return;
-        refreshResult.whenComplete(() {
+        refreshResult.whenComplete(() {}).then((hasMore) {
           if (mounted && _mode == _DragProgressMode.loading) {
             completer.complete();
-            _dismiss(_DragProgressMode.done);
+            _dismiss(_DragProgressMode.done, hasMore is bool ? hasMore : true);
           }
         });
       }
@@ -147,7 +152,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
   }
 
   // Stop showing the refresh indicator.
-  Future<void> _dismiss(_DragProgressMode newMode) async {
+  Future<void> _dismiss(_DragProgressMode newMode, bool hasMore) async {
     await Future<void>.value();
     // This can only be called from _show() when refreshing and
     // _handleScrollNotification in response to a ScrollEndNotification or
@@ -171,6 +176,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
     }
     if (mounted && _mode == newMode) {
       _dragOffset = null;
+      this.hasMoreData = hasMore;
       setState(() {
         _mode = null;
       });
@@ -189,7 +195,8 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
       _mode = _DragProgressMode.armed;
   }
 
-  bool _preHandleRefreshScrollNotification(ScrollNotification notification) => !isLoading;
+  bool _preHandleRefreshScrollNotification(ScrollNotification notification) =>
+      !isLoading;
 
   bool _handleScrollNotification(ScrollNotification notification) {
     if (this.isRefreshing) {
@@ -208,7 +215,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
       if (_mode == _DragProgressMode.drag || _mode == _DragProgressMode.armed) {
         if (notification.metrics.extentBefore <=
             notification.metrics.maxScrollExtent) {
-          _dismiss(_DragProgressMode.canceled);
+          _dismiss(_DragProgressMode.canceled, this.hasMoreData);
         } else {
           _dragOffset += notification.scrollDelta;
           _checkDragOffset(notification.metrics.viewportDimension);
@@ -233,7 +240,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
           _show();
           break;
         case _DragProgressMode.drag:
-          _dismiss(_DragProgressMode.canceled);
+          _dismiss(_DragProgressMode.canceled, this.hasMoreData);
           break;
         default:
           // do nothing
@@ -246,16 +253,36 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
 // begin loading hidden refresh
   Future _checkLoadingActions() async {
     isLoading = true;
-    await widget.onLoadMore();
+    var hasMore = this.hasMoreData;
+    if (this.hasMoreData) {
+      final res = await widget.onLoadMore();
+      if (res is bool) {
+        hasMore = res;
+      }
+    }
     // set it to back
     isLoading = false;
+    return hasMore;
   }
 
   Future _checkRefreshActions() async {
+    this.hasMoreData = true;
+    setState(() {});
     isRefreshing = true;
     await widget.onRefresh();
     // set it to back
     isRefreshing = false;
+  }
+
+  Widget _getNodataDefalutWidget(double value) {
+    if (value == 0) {
+      return widget.nodataWidget == null
+          ? Padding(
+              padding: EdgeInsets.all(0),
+            )
+          : widget.nodataWidget;
+    }
+    return widget.nodataWidget;
   }
 
   @override
@@ -265,11 +292,12 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
 
     final Widget child = NotificationListener(
       child: RefreshIndicator(
-              notificationPredicate: _preHandleRefreshScrollNotification,
-              onRefresh: _checkRefreshActions,
-              child: widget.child,
-            ),
-      onNotification: widget.onLoadMore != null ? _handleScrollNotification : null,
+        notificationPredicate: _preHandleRefreshScrollNotification,
+        onRefresh: _checkRefreshActions,
+        child: widget.child,
+      ),
+      onNotification:
+          widget.onLoadMore != null ? _handleScrollNotification : null,
     );
     return widget.onLoadMore == null
         ? child
@@ -292,16 +320,19 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
                       child: AnimatedBuilder(
                         animation: _positionController,
                         builder: (BuildContext context, Widget child) {
-                          return RefreshProgressIndicator(
-                            semanticsLabel: MaterialLocalizations.of(context)
-                                .refreshIndicatorSemanticLabel,
-                            semanticsValue: 'widget.semanticsValue',
-                            value: showIndeterminateIndicator
-                                ? null
-                                : _value.value,
-                            valueColor: _valueColor,
-                            backgroundColor: widget.backgroundColor,
-                          );
+                          return this.hasMoreData
+                              ? RefreshProgressIndicator(
+                                  semanticsLabel:
+                                      MaterialLocalizations.of(context)
+                                          .refreshIndicatorSemanticLabel,
+                                  semanticsValue: 'widget.semanticsValue',
+                                  value: showIndeterminateIndicator
+                                      ? null
+                                      : _value.value,
+                                  valueColor: _valueColor,
+                                  backgroundColor: widget.backgroundColor,
+                                )
+                              : _getNodataDefalutWidget(_value.value);
                         },
                       ),
                     ),
