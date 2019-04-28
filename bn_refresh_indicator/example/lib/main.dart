@@ -76,6 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
             return false;
           },
           child: ListView.builder(
+            // physics: BouncingScrollPhysics,
             itemBuilder: (context, index) {
               return Card(
                 child: Center(

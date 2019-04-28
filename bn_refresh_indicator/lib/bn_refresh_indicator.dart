@@ -231,8 +231,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
     } else if (notification is OverscrollNotification) {
       if (_mode == _DragProgressMode.drag || _mode == _DragProgressMode.armed) {
         _dragOffset += notification.overscroll / 2.0;
-        _checkDragOffset(notification.metrics.viewportDimension -
-            notification.metrics.maxScrollExtent);
+        _checkDragOffset(notification.metrics.viewportDimension);
       }
     } else if (notification is ScrollEndNotification) {
       switch (_mode) {

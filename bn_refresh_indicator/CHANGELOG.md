@@ -20,4 +20,8 @@
 
 ## [1.2.0] 
 
-*  Add drop - down to load data in case of no data handling。
+*  Add drop - down to load data in case of no data handling.
+
+## [1.3.0] 
+
+*  Fixed a bug that did not show loading controls on android.
