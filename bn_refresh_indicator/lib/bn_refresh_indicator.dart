@@ -33,7 +33,7 @@ const Duration _kIndicatorSnapDuration = Duration(milliseconds: 150);
 const Duration _kIndicatorScaleDuration = Duration(milliseconds: 200);
 
 class BnRefreshIndicator extends StatefulWidget {
-  final RefreshCallback onRefresh;
+  final LoadMoreCallback onRefresh;
   final Widget child;
   final Color backgroundColor;
   final LoadMoreCallback onLoadMore;
@@ -133,10 +133,10 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
         assert(() {
           if (refreshResult == null)
             FlutterError.reportError(FlutterErrorDetails(
-              exception: FlutterError('The onRefresh callback returned null.\n'
-                  'The RefreshIndicator onRefresh callback must return a Future.'),
-              context: 'when calling onRefresh',
-              library: 'material library',
+              exception: FlutterError('The onLoadMore callback returned null.\n'
+                  'The bn_RefreshIndicator onLoadMore callback must return a Future.'),
+              context: 'when calling onLoadMore',
+              library: 'bn_RefreshIndicator library',
             ));
           return true;
         }());
@@ -268,9 +268,13 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
     this.hasMoreData = true;
     setState(() {});
     isRefreshing = true;
-    await widget.onRefresh();
+    final more = await widget.onRefresh();
     // set it to back
     isRefreshing = false;
+    if (more == false) {
+      this.hasMoreData = false;
+      setState(() {});
+    }
   }
 
   Widget _getNodataDefalutWidget(double value) {

@@ -25,3 +25,7 @@
 ## [1.3.0] 
 
 *  Fixed a bug that did not show loading controls on android.
+
+## [1.3.1] 
+
+*  When you add a refresh, determine whether the data is loaded again.

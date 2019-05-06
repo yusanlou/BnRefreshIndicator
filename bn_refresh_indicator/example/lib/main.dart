@@ -46,7 +46,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var _counter = 10;
-
+  var more = false;
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -65,9 +65,10 @@ class _MyHomePageState extends State<MyHomePage> {
           nodataWidget: Text('there is no data'),
           onRefresh: () async {
             await Future.delayed(Duration(seconds: 3));
+            more = !more;
             _counter = 10;
             setState(() {});
-            return;
+            return more;
           },
           onLoadMore: () async {
             await Future.delayed(Duration(seconds: 3));
