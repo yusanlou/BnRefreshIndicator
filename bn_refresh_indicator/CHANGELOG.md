@@ -29,3 +29,7 @@
 ## [1.3.1] 
 
 *  When you add a refresh, determine whether the data is loaded again.
+
+## [1.4.0] 
+
+*  Add refreshController and autoRefresh.
