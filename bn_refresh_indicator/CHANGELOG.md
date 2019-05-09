@@ -33,3 +33,7 @@
 ## [1.4.0] 
 
 *  Add refreshController and autoRefresh.
+
+## [1.4.1] 
+
+*  Fix bug.
