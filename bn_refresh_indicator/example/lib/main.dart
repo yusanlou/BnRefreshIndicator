@@ -77,8 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         body: BnRefreshIndicator(
-          refreshController: refreshController,
-          autoRefresh: false,
+          autoRefresh: true,
           nodataWidget: Text('there is no data'),
           onRefresh: () async {
             await Future.delayed(Duration(seconds: 3));

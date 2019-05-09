@@ -151,6 +151,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
         .then<void>((void value) {
       if (mounted && _mode == _DragProgressMode.snap) {
         assert(widget.onLoadMore != null);
+
         setState(() {
           // Show the indeterminate progress indicator.
           _mode = _DragProgressMode.loading;
@@ -186,9 +187,12 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
     // direction change.
     assert(newMode == _DragProgressMode.canceled ||
         newMode == _DragProgressMode.done);
-    setState(() {
-      _mode = newMode;
-    });
+    if (mounted) {
+      setState(() {
+        _mode = newMode;
+      });
+    }
+
     switch (_mode) {
       case _DragProgressMode.done:
         await _scaleController.animateTo(1.0,
@@ -204,9 +208,11 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
     if (mounted && _mode == newMode) {
       _dragOffset = null;
       this.hasMoreData = hasMore;
-      setState(() {
-        _mode = null;
-      });
+      if (mounted) {
+        setState(() {
+          _mode = null;
+        });
+      }
     }
   }
 
@@ -300,7 +306,9 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
     isRefreshing = false;
     if (more == false) {
       this.hasMoreData = false;
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
