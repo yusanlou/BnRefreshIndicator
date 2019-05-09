@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bn_refresh_indicator/bn_refresh_indicator.dart';
 
@@ -47,6 +48,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var _counter = 10;
   var more = false;
+  BnRefreshController refreshController = BnRefreshController();
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -60,29 +67,50 @@ class _MyHomePageState extends State<MyHomePage> {
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () {
+                refreshController.beginRefresh();
+              },
+            )
+          ],
         ),
         body: BnRefreshIndicator(
+          refreshController: refreshController,
+          autoRefresh: false,
           nodataWidget: Text('there is no data'),
           onRefresh: () async {
             await Future.delayed(Duration(seconds: 3));
             more = !more;
             _counter = 10;
-            setState(() {});
+            if (mounted) {
+              setState(() {});
+            }
             return more;
           },
           onLoadMore: () async {
             await Future.delayed(Duration(seconds: 3));
             _counter += 10;
-            setState(() {});
+            if (mounted) {
+              setState(() {});
+            }
             return false;
           },
           child: ListView.builder(
             // physics: BouncingScrollPhysics,
             itemBuilder: (context, index) {
-              return Card(
-                child: Center(
-                  child: Text('index -- $index'),
+              return GestureDetector(
+                child: Card(
+                  child: Center(
+                    child: Text('index -- $index'),
+                  ),
                 ),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return MyHomePage(title: 'Second page');
+                  }));
+                },
               );
             },
             itemCount: _counter,

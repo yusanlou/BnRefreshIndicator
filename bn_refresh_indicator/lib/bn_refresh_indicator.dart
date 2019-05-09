@@ -38,10 +38,13 @@ class BnRefreshIndicator extends StatefulWidget {
   final Color backgroundColor;
   final LoadMoreCallback onLoadMore;
   final Widget nodataWidget;
-
+  final bool autoRefresh;
+  final BnRefreshController refreshController;
   BnRefreshIndicator(
       {@required this.child,
       @required this.onRefresh,
+      this.refreshController,
+      this.autoRefresh = false,
       this.onLoadMore,
       this.backgroundColor,
       this.nodataWidget});
@@ -60,6 +63,8 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
   Animation<double> _scaleFactor;
   Animation<double> _value;
   Animation<Color> _valueColor;
+  final GlobalKey<RefreshIndicatorState> _refreshKey =
+      GlobalKey<RefreshIndicatorState>();
 
   double _dragOffset;
   bool isLoading = false;
@@ -82,6 +87,13 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
         _threeQuarterTween); // The "value" of the circular progress indicator during a drag.
     _scaleController = AnimationController(vsync: this);
     _scaleFactor = _scaleController.drive(_oneToZeroTween);
+    if (widget.autoRefresh || widget.refreshController.getRefreshEnable()) {
+      // When called in the outer init method, it has not been initialized.
+      startRefresh();
+    }
+    if (widget.refreshController != null) {
+      widget.refreshController.addListener(startRefresh);
+    }
   }
 
   @override
@@ -102,6 +114,15 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
     _positionController.dispose();
     _scaleController.dispose();
     super.dispose();
+  }
+
+  void startRefresh() {
+    if (isRefreshing) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshKey.currentState.show();
+    });
   }
 
   bool _start() {
@@ -295,6 +316,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
 
     final Widget child = NotificationListener(
       child: RefreshIndicator(
+        key: _refreshKey,
         notificationPredicate: _preHandleRefreshScrollNotification,
         onRefresh: _checkRefreshActions,
         child: widget.child,
@@ -344,5 +366,19 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
               ),
             ],
           );
+  }
+}
+
+class BnRefreshController extends ChangeNotifier {
+  var _initializeRefreshEnable = false;
+  void beginRefresh() {
+    if (hasListeners) {
+      notifyListeners();
+    }
+    _initializeRefreshEnable = true;
+  }
+
+  bool getRefreshEnable() {
+    return _initializeRefreshEnable;
   }
 }
