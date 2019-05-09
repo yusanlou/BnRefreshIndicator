@@ -87,12 +87,18 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
         _threeQuarterTween); // The "value" of the circular progress indicator during a drag.
     _scaleController = AnimationController(vsync: this);
     _scaleFactor = _scaleController.drive(_oneToZeroTween);
-    if (widget.autoRefresh || widget.refreshController.getRefreshEnable()) {
-      // When called in the outer init method, it has not been initialized.
-      startRefresh();
-    }
+
     if (widget.refreshController != null) {
+      if (widget.autoRefresh || widget.refreshController.getRefreshEnable()) {
+        // When called in the outer init method, it has not been initialized.
+        startRefresh();
+      }
       widget.refreshController.addListener(startRefresh);
+    } else {
+      if (widget.autoRefresh) {
+        // When called in the outer init method, it has not been initialized.
+        startRefresh();
+      }
     }
   }
 
