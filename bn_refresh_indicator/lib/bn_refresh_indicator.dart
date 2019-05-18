@@ -127,7 +127,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
       return;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshKey.currentState.show();
+      _refreshKey?.currentState?.show();
     });
   }
 
