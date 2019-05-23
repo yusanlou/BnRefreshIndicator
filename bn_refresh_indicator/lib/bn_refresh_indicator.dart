@@ -163,7 +163,7 @@ class _BnRefreshIndicatorState extends State<BnRefreshIndicator>
             FlutterError.reportError(FlutterErrorDetails(
               exception: FlutterError('The onLoadMore callback returned null.\n'
                   'The RefreshIndicator onLoadMore callback must return a Future.'),
-              context: ErrorDescription('when calling onLoadMore'),
+              // context: ErrorDescription('when calling onLoadMore'),
               library: 'bn_RefreshIndicator library',
             ));
           return true;

@@ -49,3 +49,7 @@
 ## [1.4.4] 
 
 *  Fix bug.
+
+## [1.4.5] 
+
+*  line 166 col 24: The method 'ErrorDescription' isn't defined for the class '_BnRefreshIndicatorState'.
